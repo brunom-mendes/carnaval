@@ -1,0 +1,21 @@
+{
+  "nome": "Bugu Delícias",
+  "descricao": "Landing page do Bugu Delícias - espaço para eventos em Taguatinga, Brasília",
+  "tipo": "iframe",
+  "url": "URL_DO_BUGU",
+  "iframe": {
+    "src": "URL_DO_BUGU",
+    "title": "Bugu Delícias",
+    "width": "100%",
+    "height": 800,
+    "style": {
+      "border": "none",
+      "display": "block"
+    }
+  },
+  "alturaDinamica": true,
+  "postMessage": {
+    "tipo": "bugu-height",
+    "campoAltura": "height"
+  }
+}
