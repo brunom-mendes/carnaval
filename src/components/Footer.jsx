@@ -9,6 +9,7 @@ export default function Footer() {
             <img
               src={IMAGES.logo}
               alt="Bugu Delícias"
+              className="logo-branco"
               width={190}
               height={190}
             />

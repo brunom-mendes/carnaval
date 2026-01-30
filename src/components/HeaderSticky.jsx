@@ -19,7 +19,7 @@ export default function HeaderSticky() {
     <header className="header-sticky" aria-label="Navegação">
       <div className="header-sticky-inner">
         <a href="#hero" className="header-sticky-logo">
-          <img src={IMAGES.logo} alt="Bugu Delícias" width="48" height="48" />
+          <img src={IMAGES.logo} alt="Bugu Delícias" className="logo-branco" width="48" height="48" />
         </a>
         <a
           href={LINKS.whatsapp}

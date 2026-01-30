@@ -26,13 +26,15 @@ export default function Hero() {
       </div>
       <div className="hero-overlay" />
       <div className="hero-content">
-        <img
-          src={IMAGES.logo}
-          alt="Bugu Delícias"
-          className="hero-logo"
-          width={242}
-          height={242}
-        />
+        <div className="logo-destaque-bar">
+          <img
+            src={IMAGES.logo}
+            alt="Bugu Delícias"
+            className="hero-logo logo-branco"
+            width={242}
+            height={242}
+          />
+        </div>
         <h1 className="hero-title">
           Tem coisas que só o sabor do Bugu consegue transmitir.
         </h1>

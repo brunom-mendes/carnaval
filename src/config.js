@@ -1,9 +1,9 @@
 // Todas as imagens e vídeos da pasta public/images/
 const BASE = '/images'
 
-// Logo: usa primeira imagem (casamento1) como destaque
+// Logo oficial Bugu Delícias (Logo2024)
 export const IMAGES = {
-  logo: `${BASE}/casamento1.jpeg`,
+  logo: `${BASE}/Logo2024.png`,
   heroSlides: [
     `${BASE}/casamento1.jpeg`,
     `${BASE}/casamento2.jpeg`,
