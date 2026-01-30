@@ -18,6 +18,9 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 - Footer: borda superior sutil, mais padding; links sociais com escala no hover
 - Cards de vídeo: borda leve, hover com elevação
 - Títulos de seção com `letter-spacing` consistente
+- **Header fixo:** barra que aparece ao rolar a página (logo + CTA WhatsApp), com backdrop blur
+- **Animação ao scroll:** seções entram com fade + slide (Intersection Observer); respeita `prefers-reduced-motion`
+- Hook `useInView` e componente `SectionFade` para animações por seção
 
 ## [1.0.0] - 2025-01-29
 

@@ -1,5 +1,7 @@
 import { useEffect } from 'react'
 import Hero from './components/Hero'
+import HeaderSticky from './components/HeaderSticky'
+import SectionFade from './components/SectionFade'
 import VideoSection from './components/VideoSection'
 import Servicos from './components/Servicos'
 import Espaco from './components/Espaco'
@@ -27,12 +29,23 @@ export default function App() {
 
   return (
     <>
+      <HeaderSticky />
       <Hero />
-      <VideoSection />
-      <Servicos />
-      <Espaco />
-      <Porque />
-      <VideosGaleria />
+      <SectionFade>
+        <VideoSection />
+      </SectionFade>
+      <SectionFade>
+        <Servicos />
+      </SectionFade>
+      <SectionFade>
+        <Espaco />
+      </SectionFade>
+      <SectionFade>
+        <Porque />
+      </SectionFade>
+      <SectionFade>
+        <VideosGaleria />
+      </SectionFade>
       <Footer />
     </>
   )
