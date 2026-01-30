@@ -4,6 +4,21 @@ Alterações notáveis do projeto são documentadas neste arquivo.
 
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/).
 
+## [Unreleased]
+
+### Adicionado (feature/0002 - modernizando layout)
+
+- Design tokens: `--radius-sm/md/lg/full`, `--shadow-sm/md/lg`, `--transition`, `--cinza-bg`, `--dourado-claro`
+- Botões com bordas arredondadas, leve elevação no hover e `focus-visible` para acessibilidade
+- Hero: overlay em gradiente, sombra no logo e no título, subtítulo com largura máxima
+- Seção serviços: gradiente de fundo, cards com borda e fundo semitransparente, hover com elevação e ícone em escala
+- Vídeo principal: bordas mais arredondadas, sombra maior no hover
+- Galerias: bordas arredondadas, sombra no hover das imagens, scrollbar customizada (carrossel)
+- Seção espaço: fundo `--cinza-bg` para contraste
+- Footer: borda superior sutil, mais padding; links sociais com escala no hover
+- Cards de vídeo: borda leve, hover com elevação
+- Títulos de seção com `letter-spacing` consistente
+
 ## [1.0.0] - 2025-01-29
 
 ### Adicionado
