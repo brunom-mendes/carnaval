@@ -1609,6 +1609,202 @@ a {
   }
 }
 
+/* ===== Animações de transição entre steps ===== */
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.montar-slide-right {
+  animation: slideInRight 0.35s ease;
+}
+
+.montar-slide-left {
+  animation: slideInLeft 0.35s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .montar-slide-right,
+  .montar-slide-left {
+    animation: none;
+  }
+}
+
+/* ===== Campos do step 0 (nome, convidados) ===== */
+.montar-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 2em;
+  padding-top: 1.5em;
+  border-top: 1px solid #eae6e0;
+}
+
+.montar-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.montar-field label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+}
+
+.montar-field label i {
+  color: var(--dourado);
+  font-size: 13px;
+}
+
+.field-optional {
+  font-size: 12px;
+  font-weight: 300;
+  color: #aaa;
+  margin-left: 2px;
+}
+
+.montar-field input {
+  padding: 12px 16px;
+  border: 2px solid #e8e3dc;
+  border-radius: var(--radius-md);
+  font-family: var(--fonte-texto);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--preto);
+  background: var(--branco);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+}
+
+.montar-field input::placeholder {
+  color: #bbb;
+  font-weight: 300;
+}
+
+.montar-field input:focus {
+  border-color: var(--dourado);
+  box-shadow: 0 0 0 3px rgba(148, 113, 59, 0.1);
+}
+
+@media (max-width: 768px) {
+  .montar-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Badge de contagem nas tabs de categoria ===== */
+.cat-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--dourado);
+  color: var(--branco);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  animation: badgePop 0.25s ease;
+}
+
+.categoria-tab.active .cat-badge {
+  background: var(--branco);
+  color: var(--dourado);
+}
+
+@keyframes badgePop {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* ===== Botão remover no resumo ===== */
+.resumo-grupo li {
+  position: relative;
+}
+
+.resumo-remove {
+  flex-shrink: 0;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #ccc;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+
+.resumo-remove:hover {
+  background: #fdecea;
+  color: #d32f2f;
+}
+
+/* ===== Resumo vazio ===== */
+.resumo-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 2em;
+  text-align: center;
+  color: #999;
+}
+
+.resumo-vazio i {
+  font-size: 2rem;
+  color: #ddd;
+}
+
+.resumo-vazio p {
+  font-size: 15px;
+}
+
+/* ===== Resumo dados (nome, convidados) ===== */
+.resumo-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 2em;
+}
+
+.resumo-dados {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.resumo-dado {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #666;
+}
+
+.resumo-dado i {
+  color: var(--dourado);
+  font-size: 13px;
+}
+
 /* ===== Página Montar Evento (standalone) ===== */
 .montar-page {
   min-height: 100vh;
@@ -1623,14 +1819,25 @@ a {
 
 .montar-page-header {
   background: var(--cinza-escuro);
-  padding: 14px 0;
+  padding: 12px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .montar-page-header-inner {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+}
+
+.montar-page-left {
+  display: flex;
+  align-items: center;
   gap: 14px;
+}
+
+.montar-page-logo {
+  display: flex;
+  align-items: center;
 }
 
 .montar-page-logo img {
@@ -1649,6 +1856,49 @@ a {
   text-transform: uppercase;
 }
 
+.montar-page-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.montar-page-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--fonte-texto);
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.7);
+  transition: color var(--transition);
+}
+
+.montar-page-back:hover {
+  color: var(--branco);
+}
+
+.montar-page-back i {
+  font-size: 12px;
+}
+
+.montar-page-whatsapp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #25d366;
+  color: var(--branco);
+  font-size: 18px;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.montar-page-whatsapp:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
+}
+
 .montar-page-footer {
   background: var(--cinza-escuro);
   padding: 24px 0;
@@ -1658,4 +1908,14 @@ a {
 .montar-page-footer p {
   font-size: 14px;
   color: rgba(255, 255, 255, 0.5);
+}
+
+@media (max-width: 768px) {
+  .montar-page-brand {
+    display: none;
+  }
+
+  .montar-page-back span {
+    display: none;
+  }
 }

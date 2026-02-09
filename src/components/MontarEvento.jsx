@@ -5,7 +5,10 @@ const STEPS = ['tipo', 'itens', 'resumo']
 
 export default function MontarEvento() {
   const [step, setStep] = useState(0)
+  const [slideDir, setSlideDir] = useState('right')
   const [tipoEvento, setTipoEvento] = useState(null)
+  const [nomeCliente, setNomeCliente] = useState('')
+  const [numConvidados, setNumConvidados] = useState('')
   const [itensSelecionados, setItensSelecionados] = useState({})
   const [categoriaAtiva, setCategoriaAtiva] = useState(CATEGORIAS_ITENS[0].id)
 
@@ -17,7 +20,6 @@ export default function MontarEvento() {
       if (next[itemId]) {
         delete next[itemId]
       } else {
-        // encontrar o item completo
         for (const cat of CATEGORIAS_ITENS) {
           const found = cat.itens.find((i) => i.id === itemId)
           if (found) {
@@ -30,7 +32,24 @@ export default function MontarEvento() {
     })
   }
 
+  const removeItem = (itemId) => {
+    setItensSelecionados((prev) => {
+      const next = { ...prev }
+      delete next[itemId]
+      return next
+    })
+  }
+
   const totalSelecionados = Object.keys(itensSelecionados).length
+
+  // Contagem por categoria (para badges nas tabs)
+  const contagemPorCategoria = useMemo(() => {
+    const contagem = {}
+    CATEGORIAS_ITENS.forEach((cat) => {
+      contagem[cat.id] = cat.itens.filter((i) => itensSelecionados[i.id]).length
+    })
+    return contagem
+  }, [itensSelecionados])
 
   const resumoAgrupado = useMemo(() => {
     const grupos = {}
@@ -49,7 +68,13 @@ export default function MontarEvento() {
 
   const enviarWhatsApp = () => {
     const linhas = [`Olá! Gostaria de montar meu evento 🎉`]
-    linhas.push(`\n*Tipo de evento:* ${tipoLabel}`)
+    if (nomeCliente.trim()) {
+      linhas.push(`\n*Nome:* ${nomeCliente.trim()}`)
+    }
+    linhas.push(`*Tipo de evento:* ${tipoLabel}`)
+    if (numConvidados) {
+      linhas.push(`*Convidados:* ~${numConvidados} pessoas`)
+    }
     linhas.push(`\n*Itens selecionados:*`)
     Object.entries(resumoAgrupado).forEach(([cat, itens]) => {
       linhas.push(`\n📌 *${cat}*`)
@@ -69,16 +94,25 @@ export default function MontarEvento() {
     step === 2
 
   const next = () => {
-    if (step < STEPS.length - 1) setStep((s) => s + 1)
+    if (step < STEPS.length - 1) {
+      setSlideDir('right')
+      setStep((s) => s + 1)
+    }
   }
 
   const prev = () => {
-    if (step > 0) setStep((s) => s - 1)
+    if (step > 0) {
+      setSlideDir('left')
+      setStep((s) => s - 1)
+    }
   }
 
   const reset = () => {
+    setSlideDir('left')
     setStep(0)
     setTipoEvento(null)
+    setNomeCliente('')
+    setNumConvidados('')
     setItensSelecionados({})
     setCategoriaAtiva(CATEGORIAS_ITENS[0].id)
   }
@@ -103,16 +137,18 @@ export default function MontarEvento() {
               key={label}
               className={`montar-progress-step ${i <= step ? 'active' : ''} ${i < step ? 'done' : ''}`}
             >
-              <span className="montar-progress-number">{i + 1}</span>
+              <span className="montar-progress-number">
+                {i < step ? <i className="fas fa-check" /> : i + 1}
+              </span>
               <span className="montar-progress-label">{label}</span>
             </div>
           ))}
         </div>
 
         <div className="montar-card">
-          {/* STEP 0 — Tipo de Evento */}
+          {/* STEP 0 — Tipo de Evento + Dados */}
           {step === 0 && (
-            <div className="montar-step montar-step-tipo">
+            <div className={`montar-step montar-step-tipo montar-slide-${slideDir}`} key="step-0">
               <h3 className="montar-step-title">Qual é o tipo do seu evento?</h3>
               <div className="tipo-grid">
                 {TIPOS_EVENTO.map((tipo) => (
@@ -127,29 +163,64 @@ export default function MontarEvento() {
                   </button>
                 ))}
               </div>
+
+              {/* Campos adicionais */}
+              <div className="montar-fields">
+                <div className="montar-field">
+                  <label htmlFor="nome-cliente">
+                    <i className="fas fa-user" /> Seu nome
+                    <span className="field-optional">(opcional)</span>
+                  </label>
+                  <input
+                    id="nome-cliente"
+                    type="text"
+                    placeholder="Como podemos te chamar?"
+                    value={nomeCliente}
+                    onChange={(e) => setNomeCliente(e.target.value)}
+                  />
+                </div>
+                <div className="montar-field">
+                  <label htmlFor="num-convidados">
+                    <i className="fas fa-users" /> Quantidade de convidados
+                    <span className="field-optional">(opcional)</span>
+                  </label>
+                  <input
+                    id="num-convidados"
+                    type="number"
+                    min="1"
+                    placeholder="Ex: 50"
+                    value={numConvidados}
+                    onChange={(e) => setNumConvidados(e.target.value)}
+                  />
+                </div>
+              </div>
             </div>
           )}
 
           {/* STEP 1 — Seleção de Itens */}
           {step === 1 && (
-            <div className="montar-step montar-step-itens">
+            <div className={`montar-step montar-step-itens montar-slide-${slideDir}`} key="step-1">
               <h3 className="montar-step-title">
                 Selecione os itens para o seu {tipoLabel}
               </h3>
 
-              {/* Abas de categorias */}
+              {/* Abas de categorias com badge */}
               <div className="categorias-tabs">
-                {CATEGORIAS_ITENS.map((cat) => (
-                  <button
-                    key={cat.id}
-                    className={`categoria-tab ${categoriaAtiva === cat.id ? 'active' : ''}`}
-                    onClick={() => setCategoriaAtiva(cat.id)}
-                    type="button"
-                  >
-                    <i className={cat.icon} />
-                    <span>{cat.nome}</span>
-                  </button>
-                ))}
+                {CATEGORIAS_ITENS.map((cat) => {
+                  const count = contagemPorCategoria[cat.id]
+                  return (
+                    <button
+                      key={cat.id}
+                      className={`categoria-tab ${categoriaAtiva === cat.id ? 'active' : ''}`}
+                      onClick={() => setCategoriaAtiva(cat.id)}
+                      type="button"
+                    >
+                      <i className={cat.icon} />
+                      <span>{cat.nome}</span>
+                      {count > 0 && <span className="cat-badge">{count}</span>}
+                    </button>
+                  )
+                })}
               </div>
 
               {/* Itens da categoria ativa */}
@@ -188,12 +259,28 @@ export default function MontarEvento() {
 
           {/* STEP 2 — Resumo */}
           {step === 2 && (
-            <div className="montar-step montar-step-resumo">
+            <div className={`montar-step montar-step-resumo montar-slide-${slideDir}`} key="step-2">
               <h3 className="montar-step-title">Resumo do seu evento</h3>
 
-              <div className="resumo-tipo">
-                <i className={TIPOS_EVENTO.find((t) => t.id === tipoEvento)?.icon} />
-                <span>{tipoLabel}</span>
+              <div className="resumo-header">
+                <div className="resumo-tipo">
+                  <i className={TIPOS_EVENTO.find((t) => t.id === tipoEvento)?.icon} />
+                  <span>{tipoLabel}</span>
+                </div>
+                {(nomeCliente.trim() || numConvidados) && (
+                  <div className="resumo-dados">
+                    {nomeCliente.trim() && (
+                      <span className="resumo-dado">
+                        <i className="fas fa-user" /> {nomeCliente.trim()}
+                      </span>
+                    )}
+                    {numConvidados && (
+                      <span className="resumo-dado">
+                        <i className="fas fa-users" /> ~{numConvidados} convidados
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="resumo-lista">
@@ -208,12 +295,28 @@ export default function MontarEvento() {
                             <strong>{item.nome}</strong>
                             <span>{item.descricao}</span>
                           </div>
+                          <button
+                            className="resumo-remove"
+                            onClick={() => removeItem(item.id)}
+                            type="button"
+                            title="Remover item"
+                            aria-label={`Remover ${item.nome}`}
+                          >
+                            <i className="fas fa-times" />
+                          </button>
                         </li>
                       ))}
                     </ul>
                   </div>
                 ))}
               </div>
+
+              {totalSelecionados === 0 && (
+                <div className="resumo-vazio">
+                  <i className="fas fa-exclamation-circle" />
+                  <p>Você removeu todos os itens. Volte para selecionar novamente.</p>
+                </div>
+              )}
             </div>
           )}
 
@@ -243,6 +346,7 @@ export default function MontarEvento() {
                 <button
                   className="btn btn-dourado montar-btn-whatsapp"
                   onClick={enviarWhatsApp}
+                  disabled={totalSelecionados === 0}
                   type="button"
                 >
                   <i className="fab fa-whatsapp" /> Enviar pelo WhatsApp
