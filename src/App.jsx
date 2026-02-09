@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import Hero from './components/Hero'
 import HeaderSticky from './components/HeaderSticky'
 import SectionFade from './components/SectionFade'
+import CtaMontar from './components/CtaMontar'
 import VideoSection from './components/VideoSection'
 import Servicos from './components/Servicos'
 import Espaco from './components/Espaco'
@@ -31,6 +32,9 @@ export default function App() {
     <>
       <HeaderSticky />
       <Hero />
+      <SectionFade>
+        <CtaMontar />
+      </SectionFade>
       <SectionFade>
         <VideoSection />
       </SectionFade>
