@@ -1,6 +1,6 @@
 export default function CtaMontar() {
   return (
-    <section className="section-cta-montar">
+    <section className="section-cta-montar" id="montar-orcamento">
       {/* Elementos decorativos animados */}
       <div className="cta-orb cta-orb-1" />
       <div className="cta-orb cta-orb-2" />

@@ -23,6 +23,10 @@ export default function MontarEvento() {
         for (const cat of CATEGORIAS_ITENS) {
           const found = cat.itens.find((i) => i.id === itemId)
           if (found) {
+            // Se a categoria é singleSelect, remover outros itens dela
+            if (cat.singleSelect) {
+              cat.itens.forEach((i) => delete next[i.id])
+            }
             next[itemId] = { ...found, categoria: cat.nome }
             break
           }
@@ -73,12 +77,15 @@ export default function MontarEvento() {
     }
     linhas.push(`*Tipo de evento:* ${tipoLabel}`)
     if (numConvidados) {
-      linhas.push(`*Convidados:* ~${numConvidados} pessoas`)
+      linhas.push(`*Convidados:* aproximadamente ${numConvidados} pessoas`)
     }
     linhas.push(`\n*Itens selecionados:*`)
     Object.entries(resumoAgrupado).forEach(([cat, itens]) => {
       linhas.push(`\n📌 *${cat}*`)
-      itens.forEach((i) => linhas.push(`  • ${i.nome}`))
+      itens.forEach((i) => {
+        const precoStr = i.preco ? ` - R$ ${i.preco.toFixed(2).replace('.', ',')} por pessoa` : ''
+        linhas.push(`  • ${i.nome}${precoStr}`)
+      })
     })
     linhas.push(`\nAguardo o contato para mais detalhes. Obrigado(a)!`)
 
@@ -223,6 +230,13 @@ export default function MontarEvento() {
                 })}
               </div>
 
+              {/* Aviso de seleção única */}
+              {CATEGORIAS_ITENS.find((c) => c.id === categoriaAtiva)?.singleSelect && (
+                <p className="single-select-hint">
+                  <i className="fas fa-info-circle" /> Escolha apenas uma opção
+                </p>
+              )}
+
               {/* Itens da categoria ativa */}
               <div className="itens-grid">
                 {CATEGORIAS_ITENS.find((c) => c.id === categoriaAtiva)?.itens.map(
@@ -241,6 +255,11 @@ export default function MontarEvento() {
                         <div className="item-info">
                           <strong>{item.nome}</strong>
                           <span>{item.descricao}</span>
+                          {item.preco && (
+                            <span className="item-preco">
+                              R$ {item.preco.toFixed(2).replace('.', ',')} <small>por pessoa</small>
+                            </span>
+                          )}
                         </div>
                       </button>
                     )
@@ -294,6 +313,11 @@ export default function MontarEvento() {
                           <div>
                             <strong>{item.nome}</strong>
                             <span>{item.descricao}</span>
+                            {item.preco && (
+                              <span className="item-preco">
+                                R$ {item.preco.toFixed(2).replace('.', ',')} <small>por pessoa</small>
+                              </span>
+                            )}
                           </div>
                           <button
                             className="resumo-remove"

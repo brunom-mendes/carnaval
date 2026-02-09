@@ -33,9 +33,6 @@ export default function App() {
       <HeaderSticky />
       <Hero />
       <SectionFade>
-        <CtaMontar />
-      </SectionFade>
-      <SectionFade>
         <VideoSection />
       </SectionFade>
       <SectionFade>
@@ -43,6 +40,9 @@ export default function App() {
       </SectionFade>
       <SectionFade>
         <Espaco />
+      </SectionFade>
+      <SectionFade>
+        <CtaMontar />
       </SectionFade>
       <SectionFade>
         <Porque />

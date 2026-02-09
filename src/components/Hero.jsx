@@ -42,14 +42,22 @@ export default function Hero() {
           A gente acredita que um evento de verdade é feito de risadas, cheirinho
           de bolo e comida feita com o coração.
         </p>
-        <a
-          href={LINKS.whatsapp}
-          className="btn btn-outline"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          ENTRE EM CONTATO
-        </a>
+        <div className="hero-buttons">
+          <a
+            href={LINKS.whatsapp}
+            className="btn btn-outline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            ENTRE EM CONTATO
+          </a>
+          <a
+            href="#montar-orcamento"
+            className="btn btn-outline hero-btn-orcamento"
+          >
+            <i className="fas fa-wand-magic-sparkles" /> MONTE UM ORÇAMENTO
+          </a>
+        </div>
       </div>
     </section>
   )

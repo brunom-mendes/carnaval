@@ -332,6 +332,34 @@ a {
   margin-right: auto;
 }
 
+.hero-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hero-btn-orcamento {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--dourado) 0%, var(--dourado-claro) 100%);
+  border-color: var(--dourado);
+  color: var(--branco);
+}
+
+.hero-btn-orcamento:hover {
+  background: var(--branco);
+  border-color: var(--branco);
+  color: var(--dourado-escuro);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.hero-btn-orcamento i {
+  font-size: 15px;
+}
+
 @media (max-width: 768px) {
   .hero {
     padding: 80px 10px;
@@ -348,6 +376,11 @@ a {
   }
   .hero-subtitle {
     font-size: 13px;
+  }
+  .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
   }
 }
 
@@ -1000,6 +1033,22 @@ a {
   font-size: 14px;
 }
 
+.single-select-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--dourado-escuro);
+  background: rgba(191, 155, 48, 0.08);
+  border: 1px solid rgba(191, 155, 48, 0.18);
+  border-radius: 8px;
+  padding: 8px 14px;
+  margin-bottom: 12px;
+}
+.single-select-hint i {
+  font-size: 14px;
+}
+
 .itens-grid {
   display: flex;
   flex-direction: column;
@@ -1061,6 +1110,22 @@ a {
   font-weight: 300;
   color: #777;
   line-height: 1.4;
+}
+
+.item-preco {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--dourado-escuro);
+  margin-top: 2px;
+}
+
+.item-preco small {
+  font-size: 12px;
+  font-weight: 400;
+  color: #999;
 }
 
 .itens-contador {
