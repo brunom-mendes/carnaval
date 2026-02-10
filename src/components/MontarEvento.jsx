@@ -3,6 +3,25 @@ import { TIPOS_EVENTO, CATEGORIAS_ITENS, LINKS } from '../config'
 
 const STEPS = ['tipo', 'itens', 'resumo']
 
+/* Formata valor em reais */
+const formatPreco = (valor) =>
+  valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+
+/* Retorna label da unidade para exibição */
+const labelUnidade = (unidade) => {
+  const map = {
+    unidade: 'por unidade',
+    kg: 'por kg',
+    litro: 'por litro',
+    lote: 'o lote',
+    combo: 'o combo',
+    'por período': 'por período',
+    'por hora': 'por hora',
+    'por pessoa': 'por pessoa',
+  }
+  return map[unidade] || ''
+}
+
 export default function MontarEvento() {
   const [step, setStep] = useState(0)
   const [slideDir, setSlideDir] = useState('right')
@@ -64,6 +83,18 @@ export default function MontarEvento() {
     return grupos
   }, [itensSelecionados])
 
+  // Cálculo do orçamento
+  const totalOrcamento = useMemo(() => {
+    return Object.values(itensSelecionados).reduce(
+      (soma, item) => soma + (item.preco || 0),
+      0
+    )
+  }, [itensSelecionados])
+
+  const temAConsultar = useMemo(() => {
+    return Object.values(itensSelecionados).some((item) => item.preco === 0)
+  }, [itensSelecionados])
+
   const tipoLabel = tipoEvento
     ? TIPOS_EVENTO.find((t) => t.id === tipoEvento)?.label
     : ''
@@ -83,10 +114,16 @@ export default function MontarEvento() {
     Object.entries(resumoAgrupado).forEach(([cat, itens]) => {
       linhas.push(`\n📌 *${cat}*`)
       itens.forEach((i) => {
-        const precoStr = i.preco ? ` - R$ ${i.preco.toFixed(2).replace('.', ',')} por pessoa` : ''
+        const precoStr = i.preco > 0
+          ? ` — ${formatPreco(i.preco)}${i.unidade ? ` ${labelUnidade(i.unidade)}` : ''}`
+          : ' — A consultar'
         linhas.push(`  • ${i.nome}${precoStr}`)
       })
     })
+    linhas.push(`\n💰 *Total estimado:* ${formatPreco(totalOrcamento)}`)
+    if (temAConsultar) {
+      linhas.push(`⚠️ Alguns itens estão sujeitos a consulta de preço.`)
+    }
     linhas.push(`\nAguardo o contato para mais detalhes. Obrigado(a)!`)
 
     const texto = encodeURIComponent(linhas.join('\n'))
@@ -139,7 +176,7 @@ export default function MontarEvento() {
 
         {/* Progress bar */}
         <div className="montar-progress">
-          {['Tipo de Evento', 'Itens', 'Resumo'].map((label, i) => (
+          {['Tipo de Evento', 'Itens & Cardápio', 'Resumo & Orçamento'].map((label, i) => (
             <div
               key={label}
               className={`montar-progress-step ${i <= step ? 'active' : ''} ${i < step ? 'done' : ''}`}
@@ -204,7 +241,7 @@ export default function MontarEvento() {
             </div>
           )}
 
-          {/* STEP 1 — Seleção de Itens */}
+          {/* STEP 1 — Seleção de Itens + Orçamento */}
           {step === 1 && (
             <div className={`montar-step montar-step-itens montar-slide-${slideDir}`} key="step-1">
               <h3 className="montar-step-title">
@@ -242,6 +279,7 @@ export default function MontarEvento() {
                 {CATEGORIAS_ITENS.find((c) => c.id === categoriaAtiva)?.itens.map(
                   (item) => {
                     const selected = !!itensSelecionados[item.id]
+                    const isAConsultar = item.preco === 0
                     return (
                       <button
                         key={item.id}
@@ -255,9 +293,14 @@ export default function MontarEvento() {
                         <div className="item-info">
                           <strong>{item.nome}</strong>
                           <span>{item.descricao}</span>
-                          {item.preco && (
+                          {isAConsultar ? (
+                            <span className="item-preco item-a-consultar">
+                              <i className="fas fa-tag" /> A consultar
+                            </span>
+                          ) : (
                             <span className="item-preco">
-                              R$ {item.preco.toFixed(2).replace('.', ',')} <small>por pessoa</small>
+                              {formatPreco(item.preco)}{' '}
+                              {item.unidade && <small>{labelUnidade(item.unidade)}</small>}
                             </span>
                           )}
                         </div>
@@ -267,16 +310,29 @@ export default function MontarEvento() {
                 )}
               </div>
 
+              {/* Barra de orçamento */}
               {totalSelecionados > 0 && (
-                <div className="itens-contador">
-                  <i className="fas fa-check" />
-                  {totalSelecionados} {totalSelecionados === 1 ? 'item selecionado' : 'itens selecionados'}
+                <div className="orcamento-bar">
+                  <div className="orcamento-bar-info">
+                    <span className="orcamento-bar-count">
+                      <i className="fas fa-check-circle" />
+                      {totalSelecionados} {totalSelecionados === 1 ? 'item' : 'itens'}
+                    </span>
+                    <span className="orcamento-bar-total">
+                      Total estimado: <strong>{formatPreco(totalOrcamento)}</strong>
+                    </span>
+                  </div>
+                  {temAConsultar && (
+                    <span className="orcamento-bar-aviso">
+                      <i className="fas fa-info-circle" /> Itens com valor R$ 0,00 serão cotados pela equipe
+                    </span>
+                  )}
                 </div>
               )}
             </div>
           )}
 
-          {/* STEP 2 — Resumo */}
+          {/* STEP 2 — Resumo & Orçamento */}
           {step === 2 && (
             <div className={`montar-step montar-step-resumo montar-slide-${slideDir}`} key="step-2">
               <h3 className="montar-step-title">Resumo do seu evento</h3>
@@ -307,33 +363,57 @@ export default function MontarEvento() {
                   <div key={cat} className="resumo-grupo">
                     <h4>{cat}</h4>
                     <ul>
-                      {itens.map((item) => (
-                        <li key={item.id}>
-                          <i className="fas fa-check" />
-                          <div>
-                            <strong>{item.nome}</strong>
-                            <span>{item.descricao}</span>
-                            {item.preco && (
-                              <span className="item-preco">
-                                R$ {item.preco.toFixed(2).replace('.', ',')} <small>por pessoa</small>
-                              </span>
-                            )}
-                          </div>
-                          <button
-                            className="resumo-remove"
-                            onClick={() => removeItem(item.id)}
-                            type="button"
-                            title="Remover item"
-                            aria-label={`Remover ${item.nome}`}
-                          >
-                            <i className="fas fa-times" />
-                          </button>
-                        </li>
-                      ))}
+                      {itens.map((item) => {
+                        const isAConsultar = item.preco === 0
+                        return (
+                          <li key={item.id}>
+                            <i className="fas fa-check" />
+                            <div>
+                              <strong>{item.nome}</strong>
+                              <span>{item.descricao}</span>
+                              {isAConsultar ? (
+                                <span className="item-preco item-a-consultar">
+                                  A consultar
+                                </span>
+                              ) : (
+                                <span className="item-preco">
+                                  {formatPreco(item.preco)}{' '}
+                                  {item.unidade && <small>{labelUnidade(item.unidade)}</small>}
+                                </span>
+                              )}
+                            </div>
+                            <button
+                              className="resumo-remove"
+                              onClick={() => removeItem(item.id)}
+                              type="button"
+                              title="Remover item"
+                              aria-label={`Remover ${item.nome}`}
+                            >
+                              <i className="fas fa-times" />
+                            </button>
+                          </li>
+                        )
+                      })}
                     </ul>
                   </div>
                 ))}
               </div>
+
+              {/* Total do orçamento */}
+              {totalSelecionados > 0 && (
+                <div className="resumo-total">
+                  <div className="resumo-total-linha">
+                    <span>Total estimado</span>
+                    <strong>{formatPreco(totalOrcamento)}</strong>
+                  </div>
+                  {temAConsultar && (
+                    <p className="resumo-total-aviso">
+                      <i className="fas fa-info-circle" /> Alguns itens possuem valor a consultar e
+                      serão cotados pela nossa equipe.
+                    </p>
+                  )}
+                </div>
+              )}
 
               {totalSelecionados === 0 && (
                 <div className="resumo-vazio">
@@ -373,7 +453,7 @@ export default function MontarEvento() {
                   disabled={totalSelecionados === 0}
                   type="button"
                 >
-                  <i className="fab fa-whatsapp" /> Enviar pelo WhatsApp
+                  <i className="fab fa-whatsapp" /> Enviar Orçamento pelo WhatsApp
                 </button>
                 <button
                   className="btn-link montar-btn-reset"
