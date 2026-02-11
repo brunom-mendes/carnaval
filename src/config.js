@@ -56,7 +56,7 @@ export const TIPOS_EVENTO = [
   { id: 'mini-wedding', label: 'Mini Wedding', icon: 'fas fa-heart' },
   { id: 'cha-fralda', label: 'Chá de Fralda', icon: 'fas fa-baby-carriage' },
   { id: 'corporativo', label: 'Corporativo', icon: 'fas fa-business-time' },
-  { id: 'confraternizacao', label: 'Confraternização', icon: 'fas fa-users' },
+  { id: 'confraternizacao', label: 'Aniversário\nConfraternização', icon: 'fas fa-users' },
 ]
 
 // Categorias e itens para montagem do evento (com preços reais)
@@ -69,11 +69,20 @@ export const CATEGORIAS_ITENS = [
     singleSelect: true,
     itens: [
       { id: 'reserva-mesa', nome: 'Reserva de Mesa', descricao: 'Até 20 lugares, com a casa em funcionamento (sem custo)', preco: 0, unidade: '' },
-      { id: 'espaco-dia-30', nome: 'Espaço Exclusivo — Dias Úteis (até 30 pessoas)', descricao: 'Terça a sexta, 8h às 19h', preco: 150.00, unidade: 'por período' },
-      { id: 'espaco-dia-60', nome: 'Espaço Exclusivo — Dias Úteis (até 60 pessoas)', descricao: 'Terça a sexta, 8h às 19h', preco: 200.00, unidade: 'por período' },
-      { id: 'espaco-fds-30', nome: 'Espaço Exclusivo — Fim de Semana (até 30 pessoas)', descricao: 'Finais de semana e feriados, 8h às 12h', preco: 150.00, unidade: 'por hora' },
-      { id: 'reserva-completa-dia', nome: 'Reserva Completa — Dias Úteis', descricao: 'Após 19h30, 80-90 pessoas. Decoração e cerimonial não inclusos', preco: 550.00, unidade: '' },
-      { id: 'reserva-completa-fds', nome: 'Reserva Completa — Fim de Semana', descricao: 'Após 13h, 80-90 pessoas, 4h de evento. Decoração e cerimonial não inclusos', preco: 2000.00, unidade: '' },
+      { id: 'espaco-dia-30', nome: 'Espaço Exclusivo — Dias Úteis (até 30 pessoas)', descricao: 'Terça a sexta', preco: 150.00, unidade: 'por período', subOpcoes: [
+        { id: 'manha', label: 'Manhã — entre 8h às 12h' },
+        { id: 'tarde', label: 'Tarde — entre 14h30 às 19h' },
+      ]},
+      { id: 'espaco-dia-60', nome: 'Espaço Exclusivo — Dias Úteis (até 60 pessoas)', descricao: 'Terça a sexta', preco: 200.00, unidade: 'por período', subOpcoes: [
+        { id: 'manha', label: 'Manhã — entre 8h às 12h' },
+        { id: 'tarde', label: 'Tarde — entre 14h30 às 19h' },
+      ]},
+      { id: 'espaco-fds-30', nome: 'Espaço Exclusivo — Fim de Semana (até 30 pessoas)', descricao: 'Finais de semana e feriados, entre 8h às 12h', preco: 150.00, unidade: 'por hora', camposExtras: [
+        { id: 'horas', tipo: 'select', label: 'Quantidade de horas', opcoes: ['1h', '2h', '3h', '4h'] },
+        { id: 'horario-inicio', tipo: 'horario', label: 'Horário de início da reserva', placeholder: '08h00' },
+      ]},
+      { id: 'reserva-completa-dia', nome: 'Reserva Completa — Dias Úteis', descricao: 'Após às 19h30 até 22h, entre 80-90 pessoas. Decoração e cerimonial não inclusos', preco: 550.00, unidade: '' },
+      { id: 'reserva-completa-fds', nome: 'Reserva Completa — Fim de Semana', descricao: 'Após às 13h, entre 80-90 pessoas, 5h de evento. Decoração e cerimonial não inclusos', preco: 2000.00, unidade: '' },
     ],
   },
   {

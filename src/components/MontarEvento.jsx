@@ -3,6 +3,13 @@ import { TIPOS_EVENTO, CATEGORIAS_ITENS, LINKS } from '../config'
 
 const STEPS = ['tipo', 'itens', 'resumo']
 
+/* Máscara de horário: formata como "00h00" */
+const mascaraHorario = (valor) => {
+  const nums = valor.replace(/\D/g, '').slice(0, 4)
+  if (nums.length <= 2) return nums
+  return `${nums.slice(0, 2)}h${nums.slice(2)}`
+}
+
 /* Formata valor em reais */
 const formatPreco = (valor) =>
   valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -51,6 +58,24 @@ export default function MontarEvento() {
         }
       }
       return next
+    })
+  }
+
+  const updateCampoExtra = (itemId, campoId, valor) => {
+    setItensSelecionados((prev) => {
+      if (!prev[itemId]) return prev
+      const item = prev[itemId]
+      const extras = { ...(item.camposExtrasValores || {}), [campoId]: valor }
+      return { ...prev, [itemId]: { ...item, camposExtrasValores: extras } }
+    })
+  }
+
+  const updateSubOpcao = (itemId, subOpcaoId) => {
+    setItensSelecionados((prev) => {
+      if (!prev[itemId]) return prev
+      const item = prev[itemId]
+      const sub = item.subOpcoes?.find((s) => s.id === subOpcaoId)
+      return { ...prev, [itemId]: { ...item, subOpcaoSelecionada: sub || null } }
     })
   }
 
@@ -130,10 +155,17 @@ export default function MontarEvento() {
         const qtd = i.quantidade || 1
         const subtotal = (i.preco || 0) * qtd
         const qtdStr = qtd > 1 ? ` (x${qtd})` : ''
+        const subStr = i.subOpcaoSelecionada ? ` [${i.subOpcaoSelecionada.label}]` : ''
+        const extrasObj = i.camposExtrasValores || {}
+        const extrasStr = Object.entries(extrasObj).filter(([, v]) => v).map(([k, v]) => {
+          const campo = i.camposExtras?.find((c) => c.id === k)
+          return `${campo?.label || k}: ${v}`
+        }).join(', ')
+        const extrasLine = extrasStr ? `\n  ${extrasStr}` : ''
         const precoStr = i.preco > 0
           ? ` - R$ ${subtotal.toFixed(2).replace('.', ',')}${i.unidade ? ` ${labelUnidade(i.unidade)}` : ''}${qtdStr}`
           : ' - A consultar'
-        linhas.push(`- ${i.nome}${precoStr}`)
+        linhas.push(`- ${i.nome}${subStr}${precoStr}${extrasLine}`)
       })
     })
     linhas.push(`\n*Total estimado:* R$ ${totalOrcamento.toFixed(2).replace('.', ',')}`)
@@ -333,6 +365,73 @@ export default function MontarEvento() {
                           </div>
                         </button>
 
+                        {/* Sub-opções (ex: horário manhã/tarde) */}
+                        {selected && item.subOpcoes && (
+                          <div className="item-subopcoes">
+                            <span className="item-subopcoes-label">Selecione o horário:</span>
+                            {item.subOpcoes.map((sub) => {
+                              const subSelecionada = selecionado?.subOpcaoSelecionada?.id === sub.id
+                              return (
+                                <button
+                                  key={sub.id}
+                                  className={`item-subopcao ${subSelecionada ? 'active' : ''}`}
+                                  onClick={(e) => { e.stopPropagation(); updateSubOpcao(item.id, sub.id) }}
+                                  type="button"
+                                >
+                                  <i className={subSelecionada ? 'fas fa-check-circle' : 'far fa-circle'} />
+                                  {sub.label}
+                                </button>
+                              )
+                            })}
+                          </div>
+                        )}
+
+                        {/* Campos extras (ex: horas, horário de início) */}
+                        {selected && item.camposExtras && (
+                          <div className="item-campos-extras">
+                            {item.camposExtras.map((campo) => {
+                              const valor = selecionado?.camposExtrasValores?.[campo.id] || ''
+                              return (
+                                <div key={campo.id} className="item-campo-extra">
+                                  <label>{campo.label}</label>
+                                  {campo.tipo === 'select' ? (
+                                    <select
+                                      value={valor}
+                                      onChange={(e) => { e.stopPropagation(); updateCampoExtra(item.id, campo.id, e.target.value) }}
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <option value="">Selecione...</option>
+                                      {campo.opcoes.map((op) => (
+                                        <option key={op} value={op}>{op}</option>
+                                      ))}
+                                    </select>
+                                  ) : campo.tipo === 'horario' ? (
+                                    <input
+                                      type="text"
+                                      placeholder={campo.placeholder || '08h00'}
+                                      value={valor}
+                                      maxLength={5}
+                                      onChange={(e) => {
+                                        e.stopPropagation()
+                                        updateCampoExtra(item.id, campo.id, mascaraHorario(e.target.value))
+                                      }}
+                                      onClick={(e) => e.stopPropagation()}
+                                    />
+                                  ) : (
+                                    <input
+                                      type="text"
+                                      placeholder={campo.placeholder || ''}
+                                      value={valor}
+                                      onChange={(e) => { e.stopPropagation(); updateCampoExtra(item.id, campo.id, e.target.value) }}
+                                      onClick={(e) => e.stopPropagation()}
+                                    />
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
+
                         {/* Controle de quantidade (aparece quando selecionado e não é singleSelect) */}
                         {selected && !isSingle && (
                           <div className="item-qty">
@@ -423,6 +522,9 @@ export default function MontarEvento() {
                         const isAConsultar = item.preco === 0
                         const qtd = item.quantidade || 1
                         const subtotal = (item.preco || 0) * qtd
+                        const subLabel = item.subOpcaoSelecionada?.label
+                        const extras = item.camposExtrasValores || {}
+                        const temExtras = Object.values(extras).some((v) => v)
                         return (
                           <li key={item.id}>
                             <i className="fas fa-check" />
@@ -431,6 +533,15 @@ export default function MontarEvento() {
                                 {item.nome}
                                 {qtd > 1 && <span className="resumo-qty"> x{qtd}</span>}
                               </strong>
+                              {subLabel && <span className="resumo-sub">{subLabel}</span>}
+                              {temExtras && (
+                                <span className="resumo-sub">
+                                  {Object.entries(extras).filter(([, v]) => v).map(([k, v]) => {
+                                    const campo = item.camposExtras?.find((c) => c.id === k)
+                                    return `${campo?.label || k}: ${v}`
+                                  }).join(' | ')}
+                                </span>
+                              )}
                               <span>{item.descricao}</span>
                               {isAConsultar ? (
                                 <span className="item-preco item-a-consultar">
