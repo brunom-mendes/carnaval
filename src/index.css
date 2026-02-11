@@ -1057,14 +1057,11 @@ a {
 
 .item-card {
   display: flex;
-  align-items: flex-start;
-  gap: 16px;
+  flex-direction: column;
   padding: 1.25em;
   border: 2px solid #eae6e0;
   border-radius: var(--radius-md);
   background: var(--branco);
-  cursor: pointer;
-  text-align: left;
   transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
   width: 100%;
   font-family: var(--fonte-texto);
@@ -1126,6 +1123,76 @@ a {
   font-size: 12px;
   font-weight: 400;
   color: #999;
+}
+
+/* Item card — layout interno */
+.item-card-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--fonte-texto);
+}
+
+/* Controle de quantidade */
+.item-qty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #e8e3dc;
+  margin-left: 38px;
+}
+
+.item-qty-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid var(--dourado);
+  background: var(--branco);
+  color: var(--dourado-escuro);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.item-qty-btn:hover {
+  background: var(--dourado);
+  color: var(--branco);
+}
+
+.item-qty-value {
+  font-family: var(--fonte-titulo);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--dourado-escuro);
+  min-width: 28px;
+  text-align: center;
+}
+
+.item-qty-subtotal {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--dourado-escuro);
+  margin-left: 6px;
+  font-family: var(--fonte-texto);
+}
+
+/* Resumo — badge de quantidade */
+.resumo-qty {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dourado);
+  margin-left: 4px;
 }
 
 /* Item "A consultar" */
@@ -1451,6 +1518,11 @@ a {
   .resumo-tipo {
     font-size: 16px;
     padding: 12px 20px;
+  }
+
+  /* Controle de quantidade mobile */
+  .item-qty {
+    margin-left: 0;
   }
 
   /* Barra de orçamento mobile */
@@ -1875,7 +1947,8 @@ a {
   margin-left: 2px;
 }
 
-.montar-field input {
+.montar-field input,
+.montar-field select {
   padding: 12px 16px;
   border: 2px solid #e8e3dc;
   border-radius: var(--radius-md);
@@ -1886,6 +1959,16 @@ a {
   background: var(--branco);
   transition: border-color var(--transition), box-shadow var(--transition);
   outline: none;
+  width: 100%;
+}
+
+.montar-field select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2394713b' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
 }
 
 .montar-field input::placeholder {
@@ -1893,7 +1976,8 @@ a {
   font-weight: 300;
 }
 
-.montar-field input:focus {
+.montar-field input:focus,
+.montar-field select:focus {
   border-color: var(--dourado);
   box-shadow: 0 0 0 3px rgba(148, 113, 59, 0.1);
 }

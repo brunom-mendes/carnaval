@@ -42,14 +42,27 @@ export default function MontarEvento() {
         for (const cat of CATEGORIAS_ITENS) {
           const found = cat.itens.find((i) => i.id === itemId)
           if (found) {
-            // Se a categoria é singleSelect, remover outros itens dela
             if (cat.singleSelect) {
               cat.itens.forEach((i) => delete next[i.id])
             }
-            next[itemId] = { ...found, categoria: cat.nome }
+            next[itemId] = { ...found, categoria: cat.nome, quantidade: 1 }
             break
           }
         }
+      }
+      return next
+    })
+  }
+
+  const updateQuantidade = (itemId, delta) => {
+    setItensSelecionados((prev) => {
+      if (!prev[itemId]) return prev
+      const next = { ...prev }
+      const novaQtd = (next[itemId].quantidade || 1) + delta
+      if (novaQtd < 1) {
+        delete next[itemId]
+      } else {
+        next[itemId] = { ...next[itemId], quantidade: novaQtd }
       }
       return next
     })
@@ -83,10 +96,10 @@ export default function MontarEvento() {
     return grupos
   }, [itensSelecionados])
 
-  // Cálculo do orçamento
+  // Cálculo do orçamento (preco × quantidade)
   const totalOrcamento = useMemo(() => {
     return Object.values(itensSelecionados).reduce(
-      (soma, item) => soma + (item.preco || 0),
+      (soma, item) => soma + (item.preco || 0) * (item.quantidade || 1),
       0
     )
   }, [itensSelecionados])
@@ -102,7 +115,7 @@ export default function MontarEvento() {
   /* ---------- WhatsApp ---------- */
 
   const enviarWhatsApp = () => {
-    const linhas = [`Olá! Gostaria de montar meu evento 🎉`]
+    const linhas = ['Ola! Gostaria de montar meu evento']
     if (nomeCliente.trim()) {
       linhas.push(`\n*Nome:* ${nomeCliente.trim()}`)
     }
@@ -110,21 +123,24 @@ export default function MontarEvento() {
     if (numConvidados) {
       linhas.push(`*Convidados:* aproximadamente ${numConvidados} pessoas`)
     }
-    linhas.push(`\n*Itens selecionados:*`)
+    linhas.push('\n*Itens selecionados:*')
     Object.entries(resumoAgrupado).forEach(([cat, itens]) => {
-      linhas.push(`\n📌 *${cat}*`)
+      linhas.push(`\n*${cat}*`)
       itens.forEach((i) => {
+        const qtd = i.quantidade || 1
+        const subtotal = (i.preco || 0) * qtd
+        const qtdStr = qtd > 1 ? ` (x${qtd})` : ''
         const precoStr = i.preco > 0
-          ? ` — ${formatPreco(i.preco)}${i.unidade ? ` ${labelUnidade(i.unidade)}` : ''}`
-          : ' — A consultar'
-        linhas.push(`  • ${i.nome}${precoStr}`)
+          ? ` - R$ ${subtotal.toFixed(2).replace('.', ',')}${i.unidade ? ` ${labelUnidade(i.unidade)}` : ''}${qtdStr}`
+          : ' - A consultar'
+        linhas.push(`- ${i.nome}${precoStr}`)
       })
     })
-    linhas.push(`\n💰 *Total estimado:* ${formatPreco(totalOrcamento)}`)
+    linhas.push(`\n*Total estimado:* R$ ${totalOrcamento.toFixed(2).replace('.', ',')}`)
     if (temAConsultar) {
-      linhas.push(`⚠️ Alguns itens estão sujeitos a consulta de preço.`)
+      linhas.push('Alguns itens estao sujeitos a consulta de preco.')
     }
-    linhas.push(`\nAguardo o contato para mais detalhes. Obrigado(a)!`)
+    linhas.push('\nAguardo o contato para mais detalhes. Obrigado(a)!')
 
     const texto = encodeURIComponent(linhas.join('\n'))
     window.open(`${LINKS.whatsapp}?text=${texto}`, '_blank')
@@ -228,14 +244,17 @@ export default function MontarEvento() {
                     <i className="fas fa-users" /> Quantidade de convidados
                     <span className="field-optional">(opcional)</span>
                   </label>
-                  <input
+                  <select
                     id="num-convidados"
-                    type="number"
-                    min="1"
-                    placeholder="Ex: 50"
                     value={numConvidados}
                     onChange={(e) => setNumConvidados(e.target.value)}
-                  />
+                  >
+                    <option value="">Selecione...</option>
+                    <option value="25">25 pessoas</option>
+                    <option value="30">30 pessoas</option>
+                    <option value="50">50 pessoas</option>
+                    <option value="90">90 pessoas (casa completa)</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -278,33 +297,70 @@ export default function MontarEvento() {
               <div className="itens-grid">
                 {CATEGORIAS_ITENS.find((c) => c.id === categoriaAtiva)?.itens.map(
                   (item) => {
-                    const selected = !!itensSelecionados[item.id]
+                    const selecionado = itensSelecionados[item.id]
+                    const selected = !!selecionado
                     const isAConsultar = item.preco === 0
+                    const quantidade = selecionado?.quantidade || 1
+                    const catAtual = CATEGORIAS_ITENS.find((c) => c.id === categoriaAtiva)
+                    const isSingle = catAtual?.singleSelect
+
                     return (
-                      <button
+                      <div
                         key={item.id}
                         className={`item-card ${selected ? 'selected' : ''}`}
-                        onClick={() => toggleItem(item.id)}
-                        type="button"
                       >
-                        <div className="item-check">
-                          <i className={selected ? 'fas fa-check-circle' : 'far fa-circle'} />
-                        </div>
-                        <div className="item-info">
-                          <strong>{item.nome}</strong>
-                          <span>{item.descricao}</span>
-                          {isAConsultar ? (
-                            <span className="item-preco item-a-consultar">
-                              <i className="fas fa-tag" /> A consultar
-                            </span>
-                          ) : (
-                            <span className="item-preco">
-                              {formatPreco(item.preco)}{' '}
-                              {item.unidade && <small>{labelUnidade(item.unidade)}</small>}
-                            </span>
-                          )}
-                        </div>
-                      </button>
+                        <button
+                          className="item-card-toggle"
+                          onClick={() => toggleItem(item.id)}
+                          type="button"
+                        >
+                          <div className="item-check">
+                            <i className={selected ? 'fas fa-check-circle' : 'far fa-circle'} />
+                          </div>
+                          <div className="item-info">
+                            <strong>{item.nome}</strong>
+                            <span>{item.descricao}</span>
+                            {isAConsultar ? (
+                              <span className="item-preco item-a-consultar">
+                                <i className="fas fa-tag" /> A consultar
+                              </span>
+                            ) : (
+                              <span className="item-preco">
+                                {formatPreco(item.preco)}{' '}
+                                {item.unidade && <small>{labelUnidade(item.unidade)}</small>}
+                              </span>
+                            )}
+                          </div>
+                        </button>
+
+                        {/* Controle de quantidade (aparece quando selecionado e não é singleSelect) */}
+                        {selected && !isSingle && (
+                          <div className="item-qty">
+                            <button
+                              className="item-qty-btn"
+                              onClick={(e) => { e.stopPropagation(); updateQuantidade(item.id, -1) }}
+                              type="button"
+                              aria-label="Diminuir quantidade"
+                            >
+                              <i className="fas fa-minus" />
+                            </button>
+                            <span className="item-qty-value">{quantidade}</span>
+                            <button
+                              className="item-qty-btn"
+                              onClick={(e) => { e.stopPropagation(); updateQuantidade(item.id, 1) }}
+                              type="button"
+                              aria-label="Aumentar quantidade"
+                            >
+                              <i className="fas fa-plus" />
+                            </button>
+                            {!isAConsultar && quantidade > 1 && (
+                              <span className="item-qty-subtotal">
+                                = {formatPreco(item.preco * quantidade)}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     )
                   }
                 )}
@@ -365,11 +421,16 @@ export default function MontarEvento() {
                     <ul>
                       {itens.map((item) => {
                         const isAConsultar = item.preco === 0
+                        const qtd = item.quantidade || 1
+                        const subtotal = (item.preco || 0) * qtd
                         return (
                           <li key={item.id}>
                             <i className="fas fa-check" />
                             <div>
-                              <strong>{item.nome}</strong>
+                              <strong>
+                                {item.nome}
+                                {qtd > 1 && <span className="resumo-qty"> x{qtd}</span>}
+                              </strong>
                               <span>{item.descricao}</span>
                               {isAConsultar ? (
                                 <span className="item-preco item-a-consultar">
@@ -377,8 +438,11 @@ export default function MontarEvento() {
                                 </span>
                               ) : (
                                 <span className="item-preco">
-                                  {formatPreco(item.preco)}{' '}
+                                  {formatPreco(subtotal)}{' '}
                                   {item.unidade && <small>{labelUnidade(item.unidade)}</small>}
+                                  {qtd > 1 && (
+                                    <small> ({qtd} x {formatPreco(item.preco)})</small>
+                                  )}
                                 </span>
                               )}
                             </div>
