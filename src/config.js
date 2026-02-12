@@ -169,10 +169,10 @@ export const CATEGORIAS_ITENS = [
     nome: 'Mesa Posta',
     icon: 'fas fa-utensil-spoon',
     itens: [
-      { id: 'sousplat-unitario', nome: 'Sousplat Unitário', descricao: 'Diversos modelos e acabamentos', preco: 2.99, unidade: 'unidade' },
-      { id: 'guardanapo-unitario', nome: 'Guardanapo Unitário', descricao: 'Ampla variedade de cores', preco: 2.49, unidade: 'unidade' },
-      { id: 'sousplat-cristal', nome: 'Sousplat Cristal de Vidro', descricao: 'Modelo premium em cristal (não participa do kit)', preco: 4.00, unidade: 'unidade' },
-      { id: 'kit-sousplat-guardanapo', nome: 'Kit Sousplat + Guardanapo', descricao: 'Kit promocional (acima de 50 unidades)', preco: 3.99, unidade: 'unidade' },
+      { id: 'sousplat-unitario', nome: 'Sousplat Unitário', descricao: 'Diversos modelos e acabamentos', preco: 5.99, unidade: 'unidade', qtdOpcoes: [50, 60, 70, 80, 90, 100] },
+      { id: 'guardanapo-unitario', nome: 'Guardanapo Unitário', descricao: 'Ampla variedade de cores', preco: 5.49, unidade: 'unidade', qtdOpcoes: [50, 60, 70, 80, 90, 100] },
+      { id: 'sousplat-cristal', nome: 'Sousplat Cristal de Vidro', descricao: 'Modelo premium em cristal (não participa do kit)', preco: 7.00, unidade: 'unidade', qtdOpcoes: [50, 60, 70, 80, 90, 100] },
+      { id: 'kit-sousplat-guardanapo', nome: 'Kit Sousplat + Guardanapo', descricao: 'Kit promocional (mínimo 50 unidades)', preco: 6.99, unidade: 'unidade', qtdOpcoes: [50, 60, 70, 80, 90, 100] },
     ],
   },
   {

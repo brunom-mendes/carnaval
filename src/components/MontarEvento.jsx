@@ -53,7 +53,7 @@ export default function MontarEvento() {
             if (cat.singleSelect) {
               cat.itens.forEach((i) => delete next[i.id])
             }
-            const qtdInicial = found.pesoOpcoes ? found.pesoOpcoes[0] : 1
+            const qtdInicial = found.pesoOpcoes ? found.pesoOpcoes[0] : found.qtdOpcoes ? found.qtdOpcoes[0] : 1
             next[itemId] = { ...found, categoria: cat.nome, quantidade: qtdInicial }
             break
           }
@@ -183,7 +183,9 @@ export default function MontarEvento() {
         const subtotal = (i.preco || 0) * qtd
         const qtdStr = i.pesoOpcoes
           ? ` (${qtd % 1 === 0 ? qtd + 'kg' : qtd.toFixed(1).replace('.', ',') + 'kg'})`
-          : qtd > 1 ? ` (x${qtd})` : ''
+          : i.qtdOpcoes
+            ? ` (${qtd} unidades)`
+            : qtd > 1 ? ` (x${qtd})` : ''
         const subStr = i.subOpcaoSelecionada ? ` [${i.subOpcaoSelecionada.label}]` : ''
         const extrasObj = i.camposExtrasValores || {}
         const extrasStr = Object.entries(extrasObj).filter(([, v]) => v).map(([k, v]) => {
@@ -571,8 +573,32 @@ export default function MontarEvento() {
                           </div>
                         )}
 
-                        {/* Controle de quantidade (aparece quando selecionado, não é singleSelect e não tem pesoOpcoes) */}
-                        {selected && !isSingle && !item.pesoOpcoes && (
+                        {/* Seletor de quantidade fixa (mesa posta etc.) */}
+                        {selected && item.qtdOpcoes && (
+                          <div className="item-peso">
+                            <label className="item-peso-label">
+                              <i className="fas fa-layer-group" /> Quantidade:
+                            </label>
+                            <select
+                              className="item-peso-select"
+                              value={quantidade}
+                              onChange={(e) => { e.stopPropagation(); updatePeso(item.id, parseInt(e.target.value)) }}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {item.qtdOpcoes.map((qtd) => (
+                                <option key={qtd} value={qtd}>
+                                  {qtd} unidades
+                                </option>
+                              ))}
+                            </select>
+                            <span className="item-peso-subtotal">
+                              = {formatPreco(item.preco * quantidade)}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Controle de quantidade (aparece quando selecionado, não é singleSelect e não tem pesoOpcoes/qtdOpcoes) */}
+                        {selected && !isSingle && !item.pesoOpcoes && !item.qtdOpcoes && (
                           <div className="item-qty">
                             <button
                               className="item-qty-btn"
@@ -674,7 +700,9 @@ export default function MontarEvento() {
                                 {item.nome}
                                 {item.pesoOpcoes
                                   ? <span className="resumo-qty"> — {qtd % 1 === 0 ? `${qtd}kg` : `${qtd.toFixed(1).replace('.', ',')}kg`}</span>
-                                  : qtd > 1 && <span className="resumo-qty"> x{qtd}</span>
+                                  : item.qtdOpcoes
+                                    ? <span className="resumo-qty"> — {qtd} unidades</span>
+                                    : qtd > 1 && <span className="resumo-qty"> x{qtd}</span>
                                 }
                               </strong>
                               {subLabel && <span className="resumo-sub">{subLabel}</span>}
@@ -696,6 +724,8 @@ export default function MontarEvento() {
                                   {formatPreco(subtotal)}{' '}
                                   {item.pesoOpcoes ? (
                                     <small>({qtd % 1 === 0 ? `${qtd}kg` : `${qtd.toFixed(1).replace('.', ',')}kg`} x {formatPreco(item.preco)}/kg)</small>
+                                  ) : item.qtdOpcoes ? (
+                                    <small>({qtd} x {formatPreco(item.preco)}/und)</small>
                                   ) : (
                                     <>
                                       {item.unidade && <small>{labelUnidade(item.unidade)}</small>}
