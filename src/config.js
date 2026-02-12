@@ -87,7 +87,7 @@ export const CATEGORIAS_ITENS = [
   },
   {
     id: 'bolos',
-    nome: 'Bolos',
+    nome: 'Bolos Caseiros',
     icon: 'fas fa-birthday-cake',
     itens: [
       { id: 'bolo-caseiro', nome: 'Bolo Caseiro', descricao: 'Banana, milho ou maçã', preco: 38.00, unidade: 'unidade' },
@@ -96,6 +96,20 @@ export const CATEGORIAS_ITENS = [
       { id: 'pudim-grande', nome: 'Pudim Grande', descricao: 'Pudim caseiro tamanho grande', preco: 65.00, unidade: 'unidade' },
       { id: 'delicia-milho', nome: 'Delícia de Milho Grande', descricao: 'Sobremesa cremosa de milho', preco: 65.00, unidade: 'unidade' },
       { id: 'delicia-chocolate', nome: 'Delícia de Chocolate', descricao: 'Sobremesa cremosa de chocolate', preco: 65.00, unidade: 'unidade' },
+    ],
+  },
+  {
+    id: 'bolos-festa',
+    nome: 'Bolos para Festa',
+    icon: 'fas fa-cake-candles',
+    itens: [
+      { id: 'torta-branca-abacaxi', nome: 'Torta Massa Branca — Abacaxi', descricao: 'Massa branca com recheio de abacaxi', preco: 89.90, unidade: 'kg', pesoOpcoes: [2, 2.5, 3, 3.5, 4] },
+      { id: 'torta-branca-damasco', nome: 'Torta Massa Branca — Damasco', descricao: 'Massa branca com recheio de damasco', preco: 89.90, unidade: 'kg', pesoOpcoes: [2, 2.5, 3, 3.5, 4] },
+      { id: 'torta-branca-ameixa', nome: 'Torta Massa Branca — Ameixa', descricao: 'Massa branca com recheio de ameixa', preco: 89.90, unidade: 'kg', pesoOpcoes: [2, 2.5, 3, 3.5, 4] },
+      { id: 'torta-branca-coco', nome: 'Torta Massa Branca — Coco', descricao: 'Massa branca com recheio de coco', preco: 89.90, unidade: 'kg', pesoOpcoes: [2, 2.5, 3, 3.5, 4] },
+      { id: 'torta-chocolate-castanha-para', nome: 'Torta de Chocolate — Castanha do Pará', descricao: 'Massa de chocolate com recheio de castanha do Pará', preco: 89.90, unidade: 'kg', pesoOpcoes: [2, 2.5, 3, 3.5, 4] },
+      { id: 'torta-chocolate-coco', nome: 'Torta de Chocolate — Coco', descricao: 'Massa de chocolate com recheio de coco', preco: 89.90, unidade: 'kg', pesoOpcoes: [2, 2.5, 3, 3.5, 4] },
+      { id: 'torta-chocolate-castanha-caju', nome: 'Torta de Chocolate — Castanha de Caju', descricao: 'Massa de chocolate com recheio de castanha de caju', preco: 89.90, unidade: 'kg', pesoOpcoes: [2, 2.5, 3, 3.5, 4] },
     ],
   },
   {

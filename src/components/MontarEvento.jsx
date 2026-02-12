@@ -37,6 +37,7 @@ export default function MontarEvento() {
   const [numConvidados, setNumConvidados] = useState('')
   const [itensSelecionados, setItensSelecionados] = useState({})
   const [categoriaAtiva, setCategoriaAtiva] = useState(CATEGORIAS_ITENS[0].id)
+  const [buscaItem, setBuscaItem] = useState('')
 
   /* ---------- helpers ---------- */
 
@@ -52,7 +53,8 @@ export default function MontarEvento() {
             if (cat.singleSelect) {
               cat.itens.forEach((i) => delete next[i.id])
             }
-            next[itemId] = { ...found, categoria: cat.nome, quantidade: 1 }
+            const qtdInicial = found.pesoOpcoes ? found.pesoOpcoes[0] : 1
+            next[itemId] = { ...found, categoria: cat.nome, quantidade: qtdInicial }
             break
           }
         }
@@ -93,6 +95,13 @@ export default function MontarEvento() {
     })
   }
 
+  const updatePeso = (itemId, peso) => {
+    setItensSelecionados((prev) => {
+      if (!prev[itemId]) return prev
+      return { ...prev, [itemId]: { ...prev[itemId], quantidade: peso } }
+    })
+  }
+
   const removeItem = (itemId) => {
     setItensSelecionados((prev) => {
       const next = { ...prev }
@@ -102,6 +111,24 @@ export default function MontarEvento() {
   }
 
   const totalSelecionados = Object.keys(itensSelecionados).length
+
+  // Resultados da busca (busca em todas as categorias)
+  const resultadosBusca = useMemo(() => {
+    const termo = buscaItem.trim().toLowerCase()
+    if (!termo) return null
+    const resultados = []
+    CATEGORIAS_ITENS.forEach((cat) => {
+      cat.itens.forEach((item) => {
+        if (
+          item.nome.toLowerCase().includes(termo) ||
+          item.descricao.toLowerCase().includes(termo)
+        ) {
+          resultados.push({ ...item, categoriaId: cat.id, categoriaNome: cat.nome, singleSelect: cat.singleSelect })
+        }
+      })
+    })
+    return resultados
+  }, [buscaItem])
 
   // Contagem por categoria (para badges nas tabs)
   const contagemPorCategoria = useMemo(() => {
@@ -154,7 +181,9 @@ export default function MontarEvento() {
       itens.forEach((i) => {
         const qtd = i.quantidade || 1
         const subtotal = (i.preco || 0) * qtd
-        const qtdStr = qtd > 1 ? ` (x${qtd})` : ''
+        const qtdStr = i.pesoOpcoes
+          ? ` (${qtd % 1 === 0 ? qtd + 'kg' : qtd.toFixed(1).replace('.', ',') + 'kg'})`
+          : qtd > 1 ? ` (x${qtd})` : ''
         const subStr = i.subOpcaoSelecionada ? ` [${i.subOpcaoSelecionada.label}]` : ''
         const extrasObj = i.camposExtrasValores || {}
         const extrasStr = Object.entries(extrasObj).filter(([, v]) => v).map(([k, v]) => {
@@ -162,8 +191,9 @@ export default function MontarEvento() {
           return `${campo?.label || k}: ${v}`
         }).join(', ')
         const extrasLine = extrasStr ? `\n  ${extrasStr}` : ''
+        const aprox = i.pesoOpcoes ? ' (valor aproximado)' : ''
         const precoStr = i.preco > 0
-          ? ` - R$ ${subtotal.toFixed(2).replace('.', ',')}${i.unidade ? ` ${labelUnidade(i.unidade)}` : ''}${qtdStr}`
+          ? ` - R$ ${subtotal.toFixed(2).replace('.', ',')}${i.unidade ? ` ${labelUnidade(i.unidade)}` : ''}${qtdStr}${aprox}`
           : ' - A consultar'
         linhas.push(`- ${i.nome}${subStr}${precoStr}${extrasLine}`)
       })
@@ -207,6 +237,7 @@ export default function MontarEvento() {
     setNumConvidados('')
     setItensSelecionados({})
     setCategoriaAtiva(CATEGORIAS_ITENS[0].id)
+    setBuscaItem('')
   }
 
   /* ---------- render ---------- */
@@ -318,6 +349,89 @@ export default function MontarEvento() {
                 })}
               </div>
 
+              {/* Campo de busca */}
+              <div className="busca-itens">
+                <div className="busca-itens-input">
+                  <i className="fas fa-search" />
+                  <input
+                    type="text"
+                    placeholder="Buscar item em todas as categorias..."
+                    value={buscaItem}
+                    onChange={(e) => setBuscaItem(e.target.value)}
+                  />
+                  {buscaItem && (
+                    <button
+                      className="busca-itens-clear"
+                      onClick={() => setBuscaItem('')}
+                      type="button"
+                      aria-label="Limpar busca"
+                    >
+                      <i className="fas fa-times" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Resultados da busca */}
+                {resultadosBusca && (
+                  <div className="busca-resultados">
+                    {resultadosBusca.length === 0 ? (
+                      <p className="busca-vazio">
+                        <i className="fas fa-search" /> Nenhum item encontrado para "{buscaItem}"
+                      </p>
+                    ) : (
+                      <>
+                        <p className="busca-count">
+                          {resultadosBusca.length} {resultadosBusca.length === 1 ? 'resultado' : 'resultados'}
+                        </p>
+                        <div className="itens-grid">
+                          {resultadosBusca.map((item) => {
+                            const selected = !!itensSelecionados[item.id]
+                            const isAConsultar = item.preco === 0
+                            return (
+                              <div
+                                key={item.id}
+                                className={`item-card ${selected ? 'selected' : ''}`}
+                              >
+                                <button
+                                  className="item-card-toggle"
+                                  onClick={() => {
+                                    toggleItem(item.id)
+                                    setCategoriaAtiva(item.categoriaId)
+                                  }}
+                                  type="button"
+                                >
+                                  <div className="item-check">
+                                    <i className={selected ? 'fas fa-check-circle' : 'far fa-circle'} />
+                                  </div>
+                                  <div className="item-info">
+                                    <strong>{item.nome}</strong>
+                                    <span className="busca-categoria-tag">{item.categoriaNome}</span>
+                                    <span>{item.descricao}</span>
+                                    {isAConsultar ? (
+                                      <span className="item-preco item-a-consultar">
+                                        <i className="fas fa-tag" /> A consultar
+                                      </span>
+                                    ) : (
+                                      <span className="item-preco">
+                                        {formatPreco(item.preco)}{' '}
+                                        {item.unidade && <small>{labelUnidade(item.unidade)}</small>}
+                                      </span>
+                                    )}
+                                  </div>
+                                </button>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Conteúdo da categoria (esconde quando buscando) */}
+              {!resultadosBusca && (
+                <>
               {/* Aviso de seleção única */}
               {CATEGORIAS_ITENS.find((c) => c.id === categoriaAtiva)?.singleSelect && (
                 <p className="single-select-hint">
@@ -432,8 +546,33 @@ export default function MontarEvento() {
                           </div>
                         )}
 
-                        {/* Controle de quantidade (aparece quando selecionado e não é singleSelect) */}
-                        {selected && !isSingle && (
+                        {/* Seletor de peso (para itens com pesoOpcoes) */}
+                        {selected && item.pesoOpcoes && (
+                          <div className="item-peso">
+                            <label className="item-peso-label">
+                              <i className="fas fa-weight-hanging" /> Peso:
+                            </label>
+                            <select
+                              className="item-peso-select"
+                              value={quantidade}
+                              onChange={(e) => { e.stopPropagation(); updatePeso(item.id, parseFloat(e.target.value)) }}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {item.pesoOpcoes.map((peso) => (
+                                <option key={peso} value={peso}>
+                                  {peso % 1 === 0 ? `${peso}kg` : `${peso.toFixed(1).replace('.', ',')}kg`}
+                                </option>
+                              ))}
+                            </select>
+                            <span className="item-peso-subtotal">
+                              ≈ {formatPreco(item.preco * quantidade)}
+                            </span>
+                            <span className="item-peso-obs">* valor aproximado</span>
+                          </div>
+                        )}
+
+                        {/* Controle de quantidade (aparece quando selecionado, não é singleSelect e não tem pesoOpcoes) */}
+                        {selected && !isSingle && !item.pesoOpcoes && (
                           <div className="item-qty">
                             <button
                               className="item-qty-btn"
@@ -464,6 +603,8 @@ export default function MontarEvento() {
                   }
                 )}
               </div>
+                </>
+              )}
 
               {/* Barra de orçamento */}
               {totalSelecionados > 0 && (
@@ -531,7 +672,10 @@ export default function MontarEvento() {
                             <div>
                               <strong>
                                 {item.nome}
-                                {qtd > 1 && <span className="resumo-qty"> x{qtd}</span>}
+                                {item.pesoOpcoes
+                                  ? <span className="resumo-qty"> — {qtd % 1 === 0 ? `${qtd}kg` : `${qtd.toFixed(1).replace('.', ',')}kg`}</span>
+                                  : qtd > 1 && <span className="resumo-qty"> x{qtd}</span>
+                                }
                               </strong>
                               {subLabel && <span className="resumo-sub">{subLabel}</span>}
                               {temExtras && (
@@ -550,9 +694,15 @@ export default function MontarEvento() {
                               ) : (
                                 <span className="item-preco">
                                   {formatPreco(subtotal)}{' '}
-                                  {item.unidade && <small>{labelUnidade(item.unidade)}</small>}
-                                  {qtd > 1 && (
-                                    <small> ({qtd} x {formatPreco(item.preco)})</small>
+                                  {item.pesoOpcoes ? (
+                                    <small>({qtd % 1 === 0 ? `${qtd}kg` : `${qtd.toFixed(1).replace('.', ',')}kg`} x {formatPreco(item.preco)}/kg)</small>
+                                  ) : (
+                                    <>
+                                      {item.unidade && <small>{labelUnidade(item.unidade)}</small>}
+                                      {qtd > 1 && (
+                                        <small> ({qtd} x {formatPreco(item.preco)})</small>
+                                      )}
+                                    </>
                                   )}
                                 </span>
                               )}

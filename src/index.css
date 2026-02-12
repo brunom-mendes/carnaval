@@ -1050,6 +1050,105 @@ a {
   font-size: 14px;
 }
 
+/* ===== Busca de itens ===== */
+.busca-itens {
+  margin-bottom: 16px;
+}
+
+.busca-itens-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 2px solid #e5ddd0;
+  border-radius: 12px;
+  padding: 0 14px;
+  transition: border-color 0.2s;
+}
+
+.busca-itens-input:focus-within {
+  border-color: var(--dourado);
+  box-shadow: 0 0 0 3px rgba(148, 113, 59, 0.12);
+}
+
+.busca-itens-input > i {
+  color: #a0967e;
+  font-size: 15px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.busca-itens-input input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  padding: 12px 0;
+  color: #333;
+  font-family: inherit;
+}
+
+.busca-itens-input input::placeholder {
+  color: #b5a995;
+}
+
+.busca-itens-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #a0967e;
+  font-size: 14px;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.busca-itens-clear:hover {
+  background: rgba(148, 113, 59, 0.1);
+  color: var(--dourado-escuro);
+}
+
+.busca-resultados {
+  margin-top: 12px;
+}
+
+.busca-vazio {
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+  padding: 24px 0;
+}
+
+.busca-vazio i {
+  margin-right: 6px;
+  font-size: 16px;
+}
+
+.busca-count {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.busca-categoria-tag {
+  display: inline-block;
+  background: var(--dourado);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-top: 2px;
+  width: fit-content;
+}
+
 .itens-grid {
   display: flex;
   flex-direction: column;
@@ -1138,6 +1237,63 @@ a {
   cursor: pointer;
   text-align: left;
   font-family: var(--fonte-texto);
+}
+
+/* Seletor de peso (bolos para festa) */
+.item-peso {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #e8e3dc;
+  margin-left: 38px;
+  flex-wrap: wrap;
+}
+
+.item-peso-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  white-space: nowrap;
+}
+
+.item-peso-label i {
+  margin-right: 4px;
+  color: var(--dourado);
+}
+
+.item-peso-select {
+  padding: 8px 12px;
+  border: 2px solid #e5ddd0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  background: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  min-width: 100px;
+}
+
+.item-peso-select:focus {
+  border-color: var(--dourado);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(148, 113, 59, 0.12);
+}
+
+.item-peso-subtotal {
+  font-size: 13px;
+  color: var(--dourado-escuro);
+  font-weight: 700;
+}
+
+.item-peso-obs {
+  font-size: 11px;
+  color: #999;
+  font-style: italic;
+  width: 100%;
 }
 
 /* Controle de quantidade */
@@ -1626,6 +1782,15 @@ a {
     font-size: 13px;
   }
 
+  .busca-itens-input {
+    padding: 0 10px;
+  }
+
+  .busca-itens-input input {
+    font-size: 14px;
+    padding: 10px 0;
+  }
+
   .montar-progress-label {
     font-size: 11px;
   }
@@ -1655,7 +1820,8 @@ a {
   /* Sub-opcoes, campos extras e quantidade mobile */
   .item-subopcoes,
   .item-campos-extras,
-  .item-qty {
+  .item-qty,
+  .item-peso {
     margin-left: 0;
   }
 
